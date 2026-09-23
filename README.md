@@ -2,7 +2,7 @@
 
 A white, scroll-driven presentation of the original EXO mechanism in black silhouette.
 
-The six-second CAD animation follows scroll progress in both directions. The camera gradually opens its framing as the arms extend. At the bottom, the name **EXO** appears in Instrument Serif, followed by **In development, seeking funding**. No other visible copy or navigation is added.
+The six-second CAD animation follows scroll progress in both directions. The camera gradually opens its framing as the arms extend. At the bottom, the name **EXO** appears in Instrument Serif, followed by **Full body strength enhancement and data collection**. No other visible copy or navigation is added.
 
 ## Preview
 
