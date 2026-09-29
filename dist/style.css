@@ -14,11 +14,11 @@ body{overflow-x:hidden}
 .masthead.away{opacity:0}
 .brand{display:block;padding:.3em .5em;background:#fff;font-size:21px;font-weight:500;line-height:1;letter-spacing:-.02em;color:var(--brand)}
 
-/* Vellum: frosted sheet between the machine and the words. */
-.veil{position:fixed;inset:0;z-index:5;pointer-events:none;background:rgba(255,255,255,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+/* The sheet between the machine and the words: solid paper, so nothing shows through while reading. */
+.veil{position:fixed;inset:0;z-index:5;pointer-events:none;background:#fff}
 
 /* One grotesk for all text: display, body, and small labels (Manifesto, Solution). */
-.manifesto{--hush:1;position:relative;z-index:10;color:var(--ink);font-weight:500;font-kerning:normal;text-rendering:optimizeLegibility}
+.manifesto{position:relative;z-index:10;color:var(--ink);font-weight:500;font-kerning:normal;text-rendering:optimizeLegibility}
 :where(.manifesto) :where(p,h2,h3){margin:0;font-weight:inherit}
 
 .frame{width:var(--frame);margin-inline:auto;padding:var(--inset)}
@@ -47,15 +47,13 @@ body{overflow-x:hidden}
 .sheet{padding:0 var(--gutter) 30svh}
 .copy{width:var(--frame);margin-inline:auto}
 /* Each block keeps its text on the page grid; its rule sits just left of the text. */
-.part{position:relative;margin-inline:calc(var(--inset) - var(--gap));padding-inline:var(--gap);border-left:1px solid rgb(0 0 0 / var(--hush))}
+.part{position:relative;margin-inline:calc(var(--inset) - var(--gap));padding-inline:var(--gap);border-left:1px solid var(--ink)}
 /* The two blocks stand apart, each on its own rule, with a clear space between them. */
 .part:not(.turn){margin-bottom:var(--bridge)}
 .copy .turn .head{margin-top:0}
 /* Both labels hang from their rules: each cap line meets the top of its rule. */
 .part>.kicker,.turn .head .kicker{text-box:trim-start cap alphabetic}
 @supports not (text-box:trim-start cap alphabetic){.part>.kicker,.turn .head .kicker{margin-top:-.16em}}
-/* Near the end everything but the closing line fades (manifesto.js drives --hush). */
-.plate-figure,.part>.kicker,.part>p:not(.last),.part>.head{opacity:var(--hush)}
 /* The answer, from the solution heading to the last line, is shifted right as a block. */
 .turn{margin-left:auto;width:min(calc(var(--text) * 34 + var(--gap) * 2),calc(100% - (var(--inset) - var(--gap)) * 2))}
 .copy p:not(.lede){max-width:34em;font-size:var(--text);line-height:1.32;letter-spacing:-.011em;text-wrap:pretty}

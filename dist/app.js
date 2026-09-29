@@ -17,10 +17,10 @@ let frame=0, lastTime=0, loaded=false, lastPose=-1, lastView=-1, lastReduced=nul
 const center=new THREE.Vector3();
 const startScreenCenter=new THREE.Vector3();
 
-// The unfold starts as the manifesto's closing line nears the middle of the screen (data-unfold, a viewport
-// fraction), just before the rest of the text fades, and runs to the end of the page.
+// The unfold starts with the reveal, as the manifesto's last line reaches data-reveal (see manifesto.js),
+// and runs to the end of the page.
 function measure(){
-  trackStart=last?last.getBoundingClientRect().top+scrollY-innerHeight*parseFloat(last.dataset.unfold):journey.getBoundingClientRect().top+scrollY;
+  trackStart=last?last.getBoundingClientRect().top+scrollY-innerHeight*parseFloat(last.dataset.reveal):journey.getBoundingClientRect().top+scrollY;
   trackSpan=Math.max(1,document.documentElement.scrollHeight-innerHeight-trackStart);
 }
 function readScroll(){
