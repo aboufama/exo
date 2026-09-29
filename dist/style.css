@@ -26,12 +26,12 @@ body{overflow-x:hidden}
 
 /* Title: under the plate, centred, one large size throughout with tight leading. */
 .title-page{padding:clamp(8px,2svh,24px) var(--gutter) clamp(56px,9svh,104px);text-align:center}
-.title{margin:0;font-size:var(--display);line-height:.98;letter-spacing:-.035em;font-weight:500;text-wrap:balance}
+.title{margin:0;font-size:var(--display);line-height:.92;letter-spacing:-.06em;font-weight:500;text-wrap:balance}
 .title span{display:block}
 .hero{padding:clamp(56px,8svh,80px) var(--gutter) 0}
 .hero .frame{padding-block:0}
 /* The manifesto's large line and the Powered Exo heading sit a step below the title. */
-.lede,.head{font-size:var(--display-2);line-height:1.04;letter-spacing:-.03em;text-wrap:balance}
+.lede,.head{font-size:var(--display-2);line-height:.95;letter-spacing:-.055em;text-wrap:balance}
 .lede{max-width:17em}
 
 /* The plate: Muybridge's walking study, as supplied, top right. */
