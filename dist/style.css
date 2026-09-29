@@ -30,7 +30,7 @@ body{overflow-x:hidden}
 .lede{max-width:17em}
 
 /* The plate: Muybridge's walking study, as supplied, top right. */
-.plate-figure{width:min(88%,calc((100svh - 200px) * 1.683));margin:0 0 clamp(36px,6svh,64px) auto}
+.plate-figure{width:min(88%,calc((100svh - 200px) * 1.683));margin:0 0 clamp(36px,6svh,64px) auto;container-type:inline-size}
 .plate{position:relative}
 .plate img{display:block;width:100%;height:auto}
 /* On scroll, each box steps to the next frame, so all twelve walk at once, and a faint
@@ -40,8 +40,8 @@ body{overflow-x:hidden}
 .plate.moving .reel{visibility:visible}
 .plate .trace{visibility:hidden;opacity:.62}
 .plate.tracking .trace{visibility:visible}
-/* The credit, very small, flush right under the plate. */
-.credit{margin-top:6px;text-align:right;font-size:10px;line-height:1.2;letter-spacing:0;color:var(--ink-soft)}
+/* The credit, very small, flush right under the plate; it scales with the plate (10px at full size, 7px at the least). */
+.credit{margin-top:clamp(4px,.63cqw,6px);text-align:right;font-size:clamp(7px,1.05cqw,10px);line-height:1.2;letter-spacing:0;color:var(--ink-soft)}
 
 /* The letter: one tight column; the first rule starts at the Manifesto label. */
 .sheet{padding:0 var(--gutter) 30svh}
