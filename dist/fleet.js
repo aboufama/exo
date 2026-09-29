@@ -1,7 +1,7 @@
 // Fleet vs internet, in the Solution: cumulative hours from a million suits against internet text in
 // reading-hours (~30T tokens at 238 wpm, growing ~10% a year). The fleet ramps linearly to 1M suits over two
 // years, then holds. Workers wear theirs 8 h a shift, 250 days a year; everyday wearers 3 h a day. The areas are
-// ordered-dithered on a 2px grid like the data gap, and the labels are placed on the plot from the same model.
+// ordered-dithered on a fine 1px grid, and the labels are placed on the plot from the same model.
 const figure = document.getElementById('fleet');
 if (figure) {
   const canvas = figure.querySelector('canvas'), context = canvas.getContext('2d');
@@ -46,7 +46,7 @@ if (figure) {
 
     // Internet text gathers under its line and thins toward zero; the fleet's band is densest along the
     // workers' curve and fades toward the everyday wearers'.
-    const image = context.getImageData(0, 0, W, H), data = image.data, cell = Math.max(1, Math.round(2 * dpr));
+    const image = context.getImageData(0, 0, W, H), data = image.data, cell = Math.max(1, Math.round(dpr));
     for (let j = 0, rows = Math.ceil(H / cell); j < rows; j++) {
       const v = (H - (j + .5) * cell) / H * YMAX;
       for (let i = 0, cols = Math.ceil(W / cell); i < cols; i++) {
@@ -66,12 +66,12 @@ if (figure) {
     context.putImageData(image, 0, 0);
 
     // The fleet reaches a million at the end of the ramp.
-    context.strokeStyle = 'rgba(0,0,0,.5)'; context.lineWidth = dpr; context.setLineDash([3 * dpr, 4 * dpr]);
+    context.strokeStyle = 'rgba(0,0,0,.5)'; context.lineWidth = dpr; context.setLineDash([2 * dpr, 3 * dpr]);
     const xr = Math.round(X(RAMP)) + .5;
     context.beginPath(); context.moveTo(xr, 0); context.lineTo(xr, H); context.stroke();
     context.setLineDash([]);
 
-    context.lineWidth = 2 * dpr; context.lineJoin = context.lineCap = 'round';
+    context.lineWidth = dpr; context.lineJoin = context.lineCap = 'round';
     const curve = (f, style) => {
       context.strokeStyle = style; context.beginPath();
       for (let k = 0; k <= 240; k++) { const t = k / 240 * YEARS; context[k ? 'lineTo' : 'moveTo'](X(t), Y(f(t))); }
@@ -81,9 +81,9 @@ if (figure) {
     curve(t => fleet(t, WORKER), '#ec7aa4');
     curve(t => fleet(t, EVERYDAY), '#ec7aa4');
 
-    context.fillStyle = '#fff'; context.strokeStyle = '#000'; context.lineWidth = 1.5 * dpr;
+    context.fillStyle = '#fff'; context.strokeStyle = '#000'; context.lineWidth = dpr;
     for (const t of Object.values(crossings)) {
-      context.beginPath(); context.arc(X(t), Y(text(t)), 5 * dpr, 0, Math.PI * 2); context.fill(); context.stroke();
+      context.beginPath(); context.arc(X(t), Y(text(t)), 3.5 * dpr, 0, Math.PI * 2); context.fill(); context.stroke();
     }
   }
 
