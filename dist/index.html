@@ -29,12 +29,23 @@
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
 </head>
 <body>
-  <header class="masthead" id="masthead">
-    <span class="brand">Lithe</span>
-  </header>
-  <div class="veil" id="veil" aria-hidden="true"></div>
-
   <main>
+    <header class="masthead" id="masthead">
+      <span class="brand">Lithe</span>
+    </header>
+    <div class="stage" id="stage">
+      <div id="model" role="img" aria-label="Black silhouette of the EXO exoskeleton. Its shoulder and arm mechanisms unfold as you scroll."></div>
+      <img id="poster" class="poster" src="./assets/standing.png" alt="" aria-hidden="true" width="1600" height="900">
+      <div id="identity" aria-hidden="true">
+        <h1 id="wordmark">Suit 1</h1>
+        <p>Full body strength enhancement and data collection – coming soon</p>
+      </div>
+      <div class="loading-line" id="loading-line" aria-hidden="true"></div>
+      <p class="sr-only">After the manifesto, scroll, or use the arrow and Page Down keys, to move from standing to a fully extended pose. The name appears at the end.</p>
+      <div class="veil" id="veil" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+      <noscript><style>#identity{visibility:visible}.loading-line{display:none}</style></noscript>
+    </div>
     <article class="manifesto" id="manifesto" aria-labelledby="manifesto-title">
       <section class="hero">
         <div class="frame">
@@ -73,22 +84,9 @@
       </div>
     </article>
 
-    <section id="journey" aria-label="EXO — scroll to unfold the exoskeleton">
-      <div class="stage" id="stage">
-        <div id="model" role="img" aria-label="Black silhouette of the EXO exoskeleton. Its shoulder and arm mechanisms unfold as you scroll."></div>
-        <img id="poster" class="poster" src="./assets/standing.png" alt="" aria-hidden="true" width="1600" height="900">
-        <div id="identity" aria-hidden="true">
-          <h1 id="wordmark">Suit 1</h1>
-          <p>Full body strength enhancement and data collection – coming soon</p>
-        </div>
-        <div class="loading-line" id="loading-line" aria-hidden="true"></div>
-        <p class="sr-only">After the manifesto, scroll, or use the arrow and Page Down keys, to move from standing to a fully extended pose. The name appears at the end.</p>
-        <noscript><style>#identity{visibility:visible}.loading-line{display:none}</style></noscript>
-      </div>
-    </section>
+    <section id="journey" aria-label="EXO — scroll to unfold the exoskeleton"></section>
   </main>
 
-  <div class="grain" aria-hidden="true"></div>
   <script type="module" src="./manifesto.js"></script>
   <script type="module" src="./plate.js"></script>
   <script type="module" src="./app.js"></script>
