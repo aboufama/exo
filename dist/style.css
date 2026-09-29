@@ -62,13 +62,15 @@ body{overflow-x:hidden}
 /* The answer, from the solution heading to the last line, is shifted right as a block. */
 .turn{margin-left:auto;width:min(calc(var(--text) * 34 + var(--gap) * 2),calc(100% - (var(--inset) - var(--gap)) * 2))}
 .copy p:not(.lede){max-width:34em;font-size:var(--text);line-height:1.32;letter-spacing:-.011em;text-wrap:pretty}
-.copy .lede{margin-block:clamp(40px,7svh,80px)}
+/* The large line with the data-gap figure beside it on wide screens; on narrow ones the figure sits beneath. */
+.claim{display:flex;flex-direction:column;gap:clamp(40px,7svh,80px);margin-block:clamp(40px,7svh,80px)}
+@media(min-width:900px){.claim{flex-direction:row;align-items:center;gap:clamp(28px,4vw,64px)}.claim .lede{flex:0 0 13em}.claim .gap{flex:1 1 0;min-width:0}}
 .copy p+p{margin-top:.85em}
 .copy .head{margin:1.1em 0 .45em}
 
 /* The data gap: ball areas are hours of experience, dithered on a canvas (gap.js). Labels sit on the same
    fractions of the width as the balls: text at 0, video at .51, the humanoid dot at .97 with its label above. */
-.gap{width:min(100%,calc(var(--text) * 34));margin:0 0 clamp(40px,7svh,80px);padding-bottom:calc(2.7em + 12px);font-size:13px;line-height:1.35;letter-spacing:-.005em}
+.gap{width:100%;max-width:calc(var(--text) * 34);margin:0;padding-bottom:calc(2.7em + 12px);font-size:13px;line-height:1.35;letter-spacing:-.005em}
 .gap-plot{position:relative;aspect-ratio:1/.44}
 .gap canvas{position:absolute;inset:0;width:100%;height:100%}
 .gap-label{position:absolute;top:100%;left:calc(var(--x) * 100%);padding-top:12px;white-space:nowrap}
