@@ -72,6 +72,15 @@
           <p>Solving robotics is fundamentally different from solving language, and the humanoid problem makes that especially clear. There’s no internet’s worth of data waiting to be scraped, and the physical world is notoriously unforgiving, so every humanoid company has to collect, or manufacture, its own data.</p>
           <p>Even the largest players fall back on training in simulation, synthetic data or paid data-collection operations. <mark class="hl">None of these scale.</mark></p>
           <p class="lede">A high-quality, full-body embodied dataset the size of the internet does not exist, and no amount of money spent on today’s methods will create one.</p>
+          <figure class="gap" id="gap">
+            <div class="gap-plot">
+              <canvas aria-hidden="true"></canvas>
+              <div class="gap-label" style="--x:0">Internet text<span>1.6B hours</span></div>
+              <div class="gap-label" style="--x:.51">Human task video<span>300M hours</span></div>
+              <div class="gap-label up">Public humanoid data<span>5,000 hours</span></div>
+            </div>
+            <figcaption class="sr-only">Circle areas show hours of human-equivalent experience. Internet text, about 30 trillion tokens read at 238 words a minute; human task video, about a tenth of YouTube, if it were egocentric; public humanoid robot data, about 5,000 hours, a dot too small to see.</figcaption>
+          </figure>
           <p>The physical world needs its own internet: an enormous, passively generated stream of high-quality full-body data. There is only one way to build it, and that is to <mark class="hl">make a physical product people choose to use en masse.</mark></p>
           </div>
           <div class="part turn">
@@ -89,6 +98,7 @@
 
   <script type="module" src="./manifesto.js"></script>
   <script type="module" src="./plate.js"></script>
+  <script type="module" src="./gap.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
