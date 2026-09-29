@@ -85,6 +85,26 @@
           </div>
           <p>The physical world needs its own internet: an enormous, passively generated stream of high-quality full-body data. There is only one way to build it, and that is to <mark class="hl">make a physical product people choose to use en masse.</mark></p>
           </div>
+        <figure class="fleet" id="fleet">
+          <div class="fleet-plot">
+            <canvas aria-hidden="true"></canvas>
+            <span class="fleet-y" data-v="4e9">4B h</span>
+            <span class="fleet-y" data-v="8e9">8B h</span>
+            <span class="fleet-x" data-t="0">0</span>
+            <span class="fleet-x" data-t="1">1</span>
+            <span class="fleet-x" data-t="2">2</span>
+            <span class="fleet-x" data-t="3">3</span>
+            <span class="fleet-x" data-t="4">4</span>
+            <span class="fleet-x" data-t="5">5 years</span>
+            <span class="fleet-note" data-t="2">1M suits</span>
+            <span class="fleet-cross" data-cross="worker"></span>
+            <span class="fleet-cross after" data-cross="everyday"></span>
+            <div class="fleet-end pink" data-end="worker">Workers, 8 h<span>8.0B hours</span></div>
+            <div class="fleet-end pink" data-end="everyday">Everyday, 3 h<span>4.4B hours</span></div>
+            <div class="fleet-end" data-end="text">Internet text<span>2.5B hours</span></div>
+          </div>
+          <figcaption class="sr-only">Cumulative hours over five years, as a fleet grows to a million suits in two years. Worn 8 hours a shift by full-time workers, the suits pass internet text, counted in reading-hours, at about 23 months and reach 8 billion hours by year five; worn 3 hours a day, they pass it at about 35 months and reach 4.4 billion. Internet text grows to about 2.5 billion.</figcaption>
+        </figure>
           <div class="part turn">
           <h3 class="head"><span class="kicker">Solution<span class="sr-only">:</span></span> Powered Exo</h3>
           <p>Emphasis on <em>powered</em>. Wireless mocap suits already exist and capture much of the same motion, but you’ll never get millions of people to wear them. Mocap asks people to work for the data, raising the barrier for adoption too high for mass adoption.</p>
@@ -101,6 +121,7 @@
   <script type="module" src="./manifesto.js"></script>
   <script type="module" src="./plate.js"></script>
   <script type="module" src="./gap.js"></script>
+  <script type="module" src="./fleet.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
