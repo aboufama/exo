@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const stage = document.getElementById('stage');
+const journey = document.getElementById('journey');
+const manifesto = document.getElementById('manifesto');
+const last = document.getElementById('last');
 const host = document.getElementById('model');
 const poster = document.getElementById('poster');
 const identity = document.getElementById('identity');
@@ -10,12 +13,18 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const clamp = (n, a=0, b=1) => Math.min(b, Math.max(a, n));
 const ease = n => {n=clamp(n);return n*n*(3-2*n);};
 let target=0, progress=0, model, mixer, action, clip, renderer, camera, scene, bounds, startBounds;
-let frame=0, lastTime=0, loaded=false, lastPose=-1;
+let frame=0, lastTime=0, loaded=false, lastPose=-1, lastView=-1, lastReduced=null, trackStart=0, trackSpan=1;
 const center=new THREE.Vector3();
 const startScreenCenter=new THREE.Vector3();
 
+// The unfold starts as the manifesto's closing line nears the middle of the screen (data-unfold, a viewport
+// fraction), just before the rest of the text fades, and runs to the end of the page.
+function measure(){
+  trackStart=last?last.getBoundingClientRect().top+scrollY-innerHeight*parseFloat(last.dataset.unfold):journey.getBoundingClientRect().top+scrollY;
+  trackSpan=Math.max(1,document.documentElement.scrollHeight-innerHeight-trackStart);
+}
 function readScroll(){
-  target=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight));
+  target=clamp((scrollY-trackStart)/trackSpan);
   requestFrame();
 }
 function setPose(p){
@@ -50,31 +59,64 @@ function fitCamera(p){
 function paint(now){
   frame=0;
   const dt=lastTime?Math.min((now-lastTime)/1000,.05):1/60;lastTime=now;
-  progress=reduced.matches?target:progress+(target-progress)*(1-Math.exp(-dt*12));
+  // Glide toward the scroll position, but snap on big jumps (a restored scroll on refresh, the End key)
+  // so the unfold and the Suit 1 fade don't replay.
+  const gap=target-progress;
+  progress=reduced.matches || Math.abs(gap)>.25?target:progress+gap*(1-Math.exp(-dt*12));
   if(Math.abs(target-progress)<.00015)progress=target;
   const motion=clamp(progress/.92);
-  const finished=target>=.998 && progress>=.992;
-  document.body.classList.toggle('complete',finished);
-  identity.setAttribute('aria-hidden',String(!finished));
+  // Suit 1 fades in early, as the vellum clears and the arms begin to open. The fade follows scroll
+  // rather than a timer, so a refresh at the bottom shows it at once instead of replaying it.
+  const shown=ease((progress-.28)/.14);
+  identity.style.opacity=shown.toFixed(3);
+  identity.style.visibility=shown>0?'visible':'hidden';
+  identity.setAttribute('aria-hidden',String(shown<.5));
   if(loaded){
-    setPose(reduced.matches?(motion<.5?0:1):motion);
-    fitCamera(reduced.matches?0:motion);
-    renderer.render(scene,camera);
+    const view=reduced.matches?(motion<.5?0:1):motion;
+    // While the manifesto is read the pose is fixed, so skip identical renders.
+    if(view!==lastView || reduced.matches!==lastReduced){
+      setPose(view);
+      fitCamera(reduced.matches?0:motion);
+      renderer.render(scene,camera);
+      lastView=view;lastReduced=reduced.matches;
+    }
   } else if(reduced.matches || !renderer){
     poster.src=motion<.5?'./assets/standing.png':'./assets/spread.png';
   }
   if(Math.abs(target-progress)>.00001)requestFrame();
 }
 function requestFrame(){if(!frame)frame=requestAnimationFrame(paint);}
+// The line under Suit 1 is scaled so its ink spans exactly the wordmark's ink, edge to edge.
+const wordmark=document.getElementById('wordmark');
+const subtitle=identity.querySelector('p');
+const pen=document.createElement('canvas').getContext('2d');
+function ink(el){
+  const text=el.textContent, range=document.createRange();
+  range.selectNodeContents(el);
+  const box=range.getBoundingClientRect(), style=getComputedStyle(el);
+  pen.font=`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  const first=pen.measureText(text[0]), final=pen.measureText(text[text.length-1]);
+  const spacing=parseFloat(style.letterSpacing)||0; // trails the last glyph in the range box
+  return {left:box.left-first.actualBoundingBoxLeft, right:box.right-spacing-(final.width-final.actualBoundingBoxRight)};
+}
+function fitSubtitle(){
+  subtitle.style.fontSize='';subtitle.style.transform='';
+  let mark=ink(wordmark), line=ink(subtitle);
+  subtitle.style.fontSize=`${parseFloat(getComputedStyle(subtitle).fontSize)*(mark.right-mark.left)/(line.right-line.left)}px`;
+  mark=ink(wordmark);line=ink(subtitle); // the shared box may have changed width
+  subtitle.style.transform=`translateX(${(mark.left-line.left).toFixed(2)}px)`;
+}
 function resize(){
   renderer?.setSize(stage.clientWidth,stage.clientHeight,false);
-  readScroll();
+  lastView=-1;measure();readScroll();fitSubtitle();
 }
 addEventListener('scroll',readScroll,{passive:true});
 addEventListener('resize',resize,{passive:true});
-addEventListener('pageshow',readScroll);
+addEventListener('pageshow',()=>{measure();readScroll();});
 reduced.addEventListener('change',requestFrame);
-readScroll();
+if(manifesto)new ResizeObserver(()=>{measure();readScroll();}).observe(manifesto);
+measure();readScroll();fitSubtitle();
+document.fonts?.ready.then(fitSubtitle);
 
 try{
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});

@@ -4,28 +4,85 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
-  <title>EXO</title>
+  <title>Lithe</title>
   <meta name="description" content="EXO. A study in movement.">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='white'/%3E%3Cpath d='M8 6h17v4H12v4h11v4H12v4h13v4H8z' fill='black'/%3E%3C/svg%3E">
+  <!-- Link previews (iMessage, Slack, X, etc.). The card is og-card.html, rendered at 1200 × 630. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lithe">
+  <meta property="og:title" content="Lithe">
+  <meta property="og:description" content="EXO. A study in movement.">
+  <meta property="og:image" content="./assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Lithe. LLMs learned to talk and think by reading everything we’ve ever written, but we’ve never recorded how we move. Beside it, Muybridge’s twelve-frame study of a man walking.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='white'/%3E%3Cpath d='M9 6h4v16h11v4H9z' fill='black'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
+  <link rel="preload" href="./assets/walking.webp" as="image">
   <link rel="preload" href="./assets/standing.png" as="image">
-  <link rel="preload" href="./assets/InstrumentSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
 </head>
 <body>
-  <main id="journey" aria-label="EXO — scroll to unfold the exoskeleton">
-    <div class="stage" id="stage">
-      <div id="model" role="img" aria-label="Black silhouette of the EXO exoskeleton. Its shoulder and arm mechanisms unfold as you scroll."></div>
-      <img id="poster" class="poster" src="./assets/standing.png" alt="" aria-hidden="true" width="1600" height="900">
-      <div id="identity" aria-hidden="true">
-        <h1 id="wordmark">EXO</h1>
-        <p>Full body strength enhancement and data collection</p>
+  <header class="masthead" id="masthead">
+    <span class="brand">Lithe</span>
+  </header>
+  <div class="veil" id="veil" aria-hidden="true"></div>
+
+  <main>
+    <article class="manifesto" id="manifesto" aria-labelledby="manifesto-title">
+      <section class="hero">
+        <div class="frame">
+          <figure class="plate-figure">
+            <div class="plate" id="plate">
+              <img src="./assets/walking.webp" width="1200" height="713" alt="A man walking, photographed in twelve sequential frames by Eadweard Muybridge." fetchpriority="high">
+              <canvas class="reel" aria-hidden="true"></canvas>
+              <canvas class="trace" aria-hidden="true"></canvas>
+            </div>
+            <figcaption class="credit">Eadweard Muybridge, <cite>Animal Locomotion</cite>, 1887</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <div class="sheet">
+        <div class="copy">
+          <div class="part">
+          <h2 class="kicker" id="manifesto-title">Manifesto</h2>
+          <p class="lede">LLMs learned to talk and think by reading everything we’ve ever written, but <mark class="hl">we’ve never recorded how we move.</mark></p>
+          <p>Solving robotics is fundamentally different from solving language, and humanoids make that especially clear. There’s no internet’s worth of data waiting to be scraped, and the physical world is notoriously unforgiving. Video comes closest, but it shows what our bodies do, not the forces behind it. So every humanoid company has to collect, or manufacture, its own data.</p>
+          <p>Even the largest players fall back on training in simulation, synthetic data or paid data-collection operations. <mark class="hl">None of these scale.</mark></p>
+          <p>A high-quality, full-body embodied dataset the size of the internet does not exist, and no amount of money spent on today’s methods will create one.</p>
+          <p>The physical world needs its own internet: an enormous, passively generated stream of high-quality full-body data. There is only one way to build it, and that is to <mark class="hl">make a physical product people choose to use en masse.</mark></p>
+          </div>
+          <div class="part turn">
+          <h3 class="head"><span class="kicker">Solution<span class="sr-only">:</span></span> <mark class="hl">Powered</mark> Exo</h3>
+          <p>I stress powered. Wireless mocap suits already exist and capture much of the same motion, but you’ll never get millions of people to wear them. Mocap asks people to work for the data; <mark class="hl">an exo works for them.</mark></p>
+          <p>You need a device people want to wear: one that makes them perform better than they otherwise could, and collects high-quality data along the way. It can’t be a hindrance in any way, as today’s exosuits are. If it’s even mildly annoying, no one will want one.</p>
+          <p>And everyone must want one. When a product clears that bar, <mark class="hl">embodied humanoid data will be solved.</mark></p>
+          <p>That’s what we’re building.</p>
+          <p class="last" id="last" data-alone=".36" data-unfold=".6">We’re not a data company. We’re a human enhancement company, and the data follows.</p>
+          </div>
+        </div>
       </div>
-      <div class="loading-line" id="loading-line" aria-hidden="true"></div>
-      <p class="sr-only">Scroll, or use the arrow and Page Down keys, to move from standing to a fully extended pose. The name appears at the end.</p>
-      <noscript><style>#identity{opacity:1;visibility:visible;transform:translateX(-50%)}.loading-line{display:none}</style></noscript>
-    </div>
+    </article>
+
+    <section id="journey" aria-label="EXO — scroll to unfold the exoskeleton">
+      <div class="stage" id="stage">
+        <div id="model" role="img" aria-label="Black silhouette of the EXO exoskeleton. Its shoulder and arm mechanisms unfold as you scroll."></div>
+        <img id="poster" class="poster" src="./assets/standing.png" alt="" aria-hidden="true" width="1600" height="900">
+        <div id="identity" aria-hidden="true">
+          <h1 id="wordmark">Suit 1</h1>
+          <p>Full body strength enhancement and data collection – coming soon</p>
+        </div>
+        <div class="loading-line" id="loading-line" aria-hidden="true"></div>
+        <p class="sr-only">After the manifesto, scroll, or use the arrow and Page Down keys, to move from standing to a fully extended pose. The name appears at the end.</p>
+        <noscript><style>#identity{visibility:visible}.loading-line{display:none}</style></noscript>
+      </div>
+    </section>
   </main>
+
+  <div class="grain" aria-hidden="true"></div>
+  <script type="module" src="./manifesto.js"></script>
+  <script type="module" src="./plate.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
