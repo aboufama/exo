@@ -3,36 +3,19 @@
 <head>
 <meta charset="utf-8">
 <style>
-  /* Share card, 1200 × 630: the site's opening screen in miniature. */
-  :root{--ink:#000;--ink-soft:rgba(0,0,0,.5);--blush:#f8cbda;--brand:#ec7aa4;--gap:9px}
+  /* Share card, 1200 × 630 (rendered to dist/assets/og.jpg): Muybridge's walking plate at full height on its own
+     dark border, with the Lithe mark over it. At the centre the mark sits in the gap between the walkers of
+     frames 9 and 10, over grid and gutter, so no figure is covered. */
   *{box-sizing:border-box}
-  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#fff}
-  body{position:relative;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;color:var(--ink);-webkit-font-smoothing:antialiased;font-synthesis:none}
-  .brand{position:absolute;left:34px;top:32px;font-size:34px;line-height:1;letter-spacing:-.02em;color:var(--brand)}
-  .plate{position:absolute;right:52px;top:44px;width:520px;height:auto;display:block}
-  .part{position:absolute;left:52px;right:52px;bottom:50px;border-left:1px solid var(--ink);padding-left:var(--gap)}
-  .kicker{display:block;margin:0 0 18px;font-size:17px;line-height:1;color:var(--ink-soft);text-box:trim-start cap alphabetic}
-  .lede{margin:0;font-size:56px;line-height:1.02;letter-spacing:-.035em;max-width:19.5em;text-wrap:balance}
-  .hl{background-image:linear-gradient(var(--blush),var(--blush));background-repeat:no-repeat;background-position:left 0 bottom .15em;background-size:100% .56em;padding:0 .06em;margin:0 -.06em}
-  .grain{position:absolute;inset:0;pointer-events:none;opacity:.075;background-size:200px 200px}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#1c1e1d}
+  body{position:relative;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;font-synthesis:none}
+  .plate{position:absolute;left:50%;top:0;height:630px;width:auto;display:block;transform:translateX(-50%)}
+  .brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;padding:.3em .5em;background:#fff;
+    font-size:46px;line-height:1;letter-spacing:-.02em;color:#ec7aa4}
 </style>
 </head>
 <body>
-  <span class="brand">Lithe</span>
-  <div class="part">
-    <span class="kicker">Manifesto</span>
-    <p class="lede">LLMs learned to talk and think by reading everything we’ve ever written, but <span class="hl">we’ve never recorded how we move.</span></p>
-  </div>
-  <div class="grain"></div>
   <img class="plate" src="dist/assets/walking.webp" alt="">
-  <script>
-    // Same grain tile as the site, drawn beneath the plate so the photograph stays as supplied.
-    const size=200, canvas=document.createElement('canvas'); canvas.width=canvas.height=size;
-    const context=canvas.getContext('2d'), tile=context.createImageData(size,size), px=tile.data;
-    let seed=7; const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
-    for(let i=0;i<px.length;i+=4){const n=rand()*2-1;px[i]=px[i+1]=px[i+2]=n<0?0:255;px[i+3]=n*n*255;}
-    context.putImageData(tile,0,0);
-    document.querySelector('.grain').style.backgroundImage=`url(${canvas.toDataURL()})`;
-  </script>
+  <span class="brand">Lithe</span>
 </body>
 </html>
