@@ -10,7 +10,7 @@ Type is Helvetica Neue Medium for everything read, in two sizes (display and tex
 
 ## Domain
 
-Live at https://lithe.site, served by GitHub Pages from `aboufama/exo` (the custom domain is set in the repo's Pages settings, so no CNAME file is needed with the Actions deploy). DNS is at Squarespace Domains: four A records for `@` (185.199.108–111.153), AAAA records for `@` (2606:50c0:8000–8003::153), and `www` as a CNAME to `aboufama.github.io`.
+Live at https://lithe.site, hosted on Vercel (project `lithe` in Andre Boufama's projects), which deploys `dist/` from `aboufama/exo` on every push to `main` (preset Other, no build command, output directory `dist`). `www.lithe.site` redirects to it with a 308. DNS is at Squarespace Domains: A `@` → `216.150.1.1` and CNAME `www` → `2e760cc15adb55c0.vercel-dns-016.com`. The GitHub Pages workflow still publishes a copy at aboufama.github.io/exo.
 
 ## Preview
 
