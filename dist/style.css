@@ -57,7 +57,7 @@ body{overflow-x:hidden}
 /* The answer, from the solution heading to the last line, is shifted right as a block. */
 .turn{margin-left:auto;width:min(calc(var(--text) * 34 + var(--gap) * 2),calc(100% - (var(--inset) - var(--gap)) * 2))}
 .copy p:not(.lede){max-width:34em;font-size:var(--text);line-height:1.32;letter-spacing:-.011em;text-wrap:pretty}
-.copy .lede{margin-bottom:clamp(40px,7svh,80px)}
+.copy .lede{margin-block:clamp(40px,7svh,80px)}
 .copy p+p{margin-top:.85em}
 .copy .head{margin:1.1em 0 .45em}
 
