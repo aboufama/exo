@@ -51,7 +51,8 @@ function fitCamera(p){
   const reveal=ease(p);
   const offsetX=startScreenCenter.x*(1-reveal);
   const offsetY=startScreenCenter.y*(1-reveal);
-  const shift=((w<600?.035:.045)+.075)*reveal;
+  // How far the finished pose rises to make room for Suit 1; on phones the title is smaller, so it rises less.
+  const shift=(w<600?.04:.12)*reveal;
   camera.left=offsetX-fullWidth/2;camera.right=offsetX+fullWidth/2;
   camera.top=offsetY+fullHeight*(.5-shift);camera.bottom=offsetY+fullHeight*(-.5-shift);
   camera.updateProjectionMatrix();
