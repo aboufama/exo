@@ -17,7 +17,7 @@ body{overflow-x:hidden}
 /* The sheet between the machine and the words: solid paper, so nothing shows through while reading. */
 .veil{position:absolute;inset:0;z-index:8;pointer-events:none;background:#fff}
 
-/* One grotesk for all text: display, body, and small labels (Manifesto, Solution). */
+/* One grotesk for all text: display, body, and small labels (Problem, Solution). */
 .manifesto{position:relative;z-index:10;color:var(--ink);font-weight:500;font-kerning:normal;text-rendering:optimizeLegibility}
 :where(.manifesto) :where(p,h2,h3){margin:0;font-weight:inherit}
 
@@ -48,7 +48,7 @@ body{overflow-x:hidden}
 /* The credit, very small, flush right under the plate; it scales with the plate (10px at full size, 7px at the least). */
 .credit{margin-top:clamp(4px,.63cqw,6px);text-align:right;font-size:clamp(7px,1.05cqw,10px);line-height:1.2;letter-spacing:0;color:var(--ink-soft)}
 
-/* The letter: one tight column; the first rule starts at the Manifesto label. */
+/* The letter: one tight column; the first rule starts at the Problem label. */
 .sheet{padding:0 var(--gutter) 30svh}
 .copy{width:var(--frame);margin-inline:auto}
 /* Each block keeps its text on the page grid; its rule sits just left of the text. */
