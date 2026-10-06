@@ -81,11 +81,13 @@ function gather() {
   document.body.append(layer);
   let cells = [], width = 0, map = null, reach = 33;
 
-  // The drawing's two inks, read at 1/8 of its size (one sample per 0.1em), and softened by two passes of a 3-sample
-  // box blur so a line a few pixels wide reaches the dots around it. Read from the drawing as printed (debug mode may
-  // show it repainted).
-  const read = source => {
-    const c = document.createElement('canvas'), w = 500, h = Math.round(500 * source.naturalHeight / source.naturalWidth);
+  // The drawing's two inks, read small (500 samples across: one per 0.1em, about 4 px on a large screen, 0.7 of the
+  // dots' spacing), and softened by two passes of a 3-sample box blur so a line a few pixels wide reaches the dots
+  // around it. The phone drawing is shown far smaller, in finer dots, so it says how many samples to read it at
+  // (data-samples on its <source>), keeping each one the same share of the dots' spacing. Read from the drawing as
+  // printed (debug mode may show it repainted).
+  const read = (source, w = 500) => {
+    const c = document.createElement('canvas'), h = Math.round(w * source.naturalHeight / source.naturalWidth);
     c.width = w; c.height = h;
     const g = c.getContext('2d', {willReadFrequently: true});
     g.imageSmoothingQuality = 'high';
@@ -184,11 +186,22 @@ function gather() {
   }, {passive: true});
   let timer = 0;
   addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(() => place(false), 150); });
-  // Read once the drawing has loaded (on load, not decode(): browsers hold decode() back in a hidden tab).
-  const printed = new Image(), start = () => { if (!map && printed.naturalWidth) { read(printed); place(true); } };
-  printed.addEventListener('load', start, {once: true});
-  printed.src = nexus.dataset.original || nexus.getAttribute('src');
-  if (printed.complete) start();
+  // Read once the drawing has loaded (on load, not decode(): browsers hold decode() back in a hidden tab). Phones have a
+  // drawing of their own (a <source> in the nexus's <picture>), read again whenever the screen crosses over to it.
+  const sources = [...(nexus.closest('picture')?.querySelectorAll('source') ?? [])];
+  const chosen = () => sources.find(s => matchMedia(s.media).matches);
+  let url = '';
+  const load = () => {
+    const s = chosen(), next = s ? s.dataset.original || s.getAttribute('srcset') : nexus.dataset.original || nexus.getAttribute('src');
+    if (next === url) return;
+    url = next;
+    const printed = new Image(), start = () => { if (url === next && printed.naturalWidth && map?.from !== printed) { read(printed, +s?.dataset.samples || undefined); map.from = printed; place(true); } };
+    printed.addEventListener('load', start, {once: true});
+    printed.src = next;
+    if (printed.complete) start();
+  };
+  load();
+  for (const s of sources) matchMedia(s.media).addEventListener('change', load);
   document.fonts?.ready.then(() => place(true));
   for (const type of ['lithe:type', 'lithe:tune']) addEventListener(type, () => place(true)); // debug mode changed the page
 }

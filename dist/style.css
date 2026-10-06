@@ -113,6 +113,30 @@ a.tab:hover,a.tab:focus-visible{background:var(--paper);color:var(--ink);outline
 .portrait{position:relative;display:block;align-self:end;width:var(--pw);aspect-ratio:1}
 .portrait canvas,.portrait img{position:absolute;inset:0;display:block;width:100%;height:100%}
 
+/* Phones: a little more air (wider margins, more leading).
+   The statement is set in the screen's width, its three lines about three quarters of it, so the nexus drawn for
+   phones (nexus-tall.webp, 24 em wide) fits its words on every phone and opens out at the screen's edges; it has room
+   above and below for the lines that pass over and under it. Its braille is in 2 px dots, about as fine for the
+   statement's size as the 3 px dots on a large screen. */
+@media(max-width:600px){
+  :root{--gutter:24px;--text-lh:1.5;--statement:min(6.4vw,32px);--lead-gap:3.4em;--braille-dot:2px}
+  .copy p+p{margin-top:var(--para,.8em)}
+  .nexus{width:var(--nexus-w,24em);aspect-ratio:1920/1120}
+  /* The foot drawing is shown 2.6 times the screen's width, its dip (72% of the way across) at the centre, so the
+     founders rest in it as on a large screen: the cards side by side and centred, their label above them. The line that
+     draws in is fitted the same way (object-fit), so it never widens the page. */
+  .sheet{padding-bottom:var(--essay-below,184px)}
+  .tabs{padding-top:calc(260vw * 385 / 2800)}
+  .tabs::before{background-size:260vw auto;background-position:85.75% 100%}
+  .tabs .stroke{height:calc(260vw * 385 / 2800);object-fit:cover;object-position:85.75% 100%}
+  /* Two equal columns, each as wide as the longer name, the portraits filling them (so the heads still match). */
+  .founders{--pad:var(--card-pad,8px);--fg:12px;left:50%;bottom:calc(260vw * 213 / 2800 + 8px);width:max-content;grid-template-columns:repeat(2,1fr);grid-template-rows:auto auto auto auto}
+  .founders-label{position:static;grid-column:1/-1;grid-row:1;margin:0 0 10px}
+  .founder{grid-row:2/span 3}
+  .portrait{width:var(--portrait,100%)}
+  .founder .blurb{width:0;min-width:100%} /* the note wraps to the column; only the names set its width */
+}
+
 /* The nexus in braille (braille.js): a halftone of its lines in braille cells, each in its line's ink. */
 .braille{position:absolute;top:0;left:0;width:0;height:0;display:var(--braille-display,block);opacity:var(--braille-o,1);pointer-events:none;user-select:none}
 .braille svg{position:absolute;display:block;overflow:visible}

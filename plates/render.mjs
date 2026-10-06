@@ -9,7 +9,7 @@ const here = path.dirname(new URL(import.meta.url).pathname), assets = path.join
 const BROWSERS = ['/Applications/Brave Browser.app/Contents/MacOS/Brave Browser', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
 const browser = BROWSERS.find(b => fs.existsSync(b));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const names = process.argv.slice(2).length ? process.argv.slice(2) : ['walk', 'walk-tall', 'foot', 'nexus'];
+const names = process.argv.slice(2).length ? process.argv.slice(2) : ['walk', 'walk-tall', 'foot', 'nexus', 'nexus-tall'];
 const port = 9600 + Math.floor(Math.random() * 300), profile = fs.mkdtempSync(path.join(os.tmpdir(), 'plates-'));
 const proc = spawn(browser, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, '--no-first-run',
   '--allow-file-access-from-files', 'about:blank'], {stdio: 'ignore'});

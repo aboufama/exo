@@ -206,6 +206,7 @@ if (params.has('debug')) {
         [document.querySelector('.cover picture img'), 'src'],
         [document.querySelector('.cover picture source'), 'srcset'],
         [document.querySelector('.nexus'), 'src'],
+        [document.querySelector('.lead picture source'), 'srcset'],
       ].filter(([el]) => el);
       for (const [el, attr] of targets) el.dataset.original ||= el.getAttribute(attr);
       if (printed) {
