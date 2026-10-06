@@ -1,0 +1,220 @@
+<!doctype html><meta charset=utf-8><body style="margin:0">
+<script src="gait.js"></script><script src="riso.js"></script>
+<script>
+// Plates for the Lithe site. A walking body is traced as the paths of points along its limbs; those paths are laid
+// along a curve across the frame (a river) and echoed above the head and below the ground, then printed in two
+// inks. A wafer can dice whatever lies under it into whole dies.
+const lerp = (a, b, u) => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+function chainPoints(f, chain, m) {
+  const pts = chain.map(j => j(f)), len = [0];
+  for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const out = [];
+  for (let q = 0; q < m; q++) {
+    const s = len.at(-1) * q / (m - 1);
+    let i = 1; while (i < len.length - 1 && len[i] < s) i++;
+    out.push(lerp(pts[i - 1], pts[i], (s - len[i - 1]) / ((len[i] - len[i - 1]) || 1)));
+  }
+  return out;
+}
+const CHAINS = {
+  nearLeg: [f => f.right.hip, f => f.right.knee, f => f.right.ankle, f => f.right.toe],
+  farLeg: [f => f.left.hip, f => f.left.knee, f => f.left.ankle, f => f.left.toe],
+  torso: [f => f.pelvis, f => f.shoulder, f => f.neck, f => f.head],
+  nearArm: [f => f.right.shoulder, f => f.right.elbow, f => f.right.wrist, f => f.right.hand],
+  farArm: [f => f.left.shoulder, f => f.left.elbow, f => f.left.wrist, f => f.left.hand],
+};
+const REF = {head: f => f.head, pelvis: f => f.pelvis};
+const bez = (P, u) => { const v = 1 - u; return [0, 1].map(i => v*v*v*P[0][i] + 3*v*v*u*P[1][i] + 3*v*u*u*P[2][i] + u*u*u*P[3][i]); };
+const bezD = (P, u) => { const v = 1 - u; return [0, 1].map(i => 3*v*v*(P[1][i]-P[0][i]) + 6*v*u*(P[2][i]-P[1][i]) + 3*u*u*(P[3][i]-P[2][i])); };
+const bezDD = (P, u) => { const v = 1 - u; return [0, 1].map(i => 6*v*(P[2][i]-2*P[1][i]+P[0][i]) + 6*u*(P[3][i]-2*P[2][i]+P[1][i])); };
+
+// Named band patterns, so specs stay data. j: band index, n: bands in the family, v: offset in body heights.
+const PATTERNS = {
+  sky: (j, n, v) => v < .2 ? {ink: 'p', solid: .6, floor: .25} : v < .32 ? {ink: 'p', solid: .45}
+    : v < .44 ? (j % 2 ? null : {ink: 'k', solid: .35}) : {ink: 'k', solid: .5, floor: Math.min(.86, (v - .44) * 1.4)},
+  skyPale: (j, n, v) => v < .14 ? {ink: 'p', solid: .5} : (j % 3 ? null : {ink: 'p', solid: .3 * Math.max(0, 1 - v)}),
+  skyInk: (j, n, v) => v < .1 ? {ink: 'k', solid: .5, floor: .3} : (j % 2 ? null : {ink: 'k', solid: .4}),
+  ground: (j, n) => j % 3 === 0 ? {ink: 'p', solid: .22 + .2 * (1 - j / n)} : (j % 8 === 4 ? {ink: 'k', solid: .18} : null),
+  // As sky, with the black field printed in ordered dither, its tone rising with distance, like a printed screen.
+  skyScreen: (j, n, v) => v < .44 ? PATTERNS.sky(j, n, v) : {ink: 'k', solid: 1, density: Math.min(.9, .25 + (v - .44) * .9), screen: 'dither'},
+  groundSparse: (j, n) => j % 4 === 0 ? {ink: 'p', solid: .25} : null,
+  inkStripes: j => j % 2 ? null : {ink: 'k', solid: .45},
+  pinkStripes: j => j % 2 ? null : {ink: 'p', solid: .45},
+  torso: j => [{ink: 'k', solid: .35}, null, null, {ink: 'p', solid: .35}, null, null][j % 6],
+  pinkTorso: j => [{ink: 'p', solid: .4}, null, {ink: 'p', solid: .2}, null][j % 4],
+};
+const pattern = (p, j, n, v) => typeof p === 'string' ? PATTERNS[p](j, n, v) : typeof p === 'function' ? p(j, n, v) : p[j % p.length];
+
+// Keep the pencil off a rectangle (where the Muybridge plate sits on the page): `avoid: {rect: [x0, y0, x1, y1], gap,
+// jitter, taper, seed}`. Each line lifts off before it at `gap` px give or take its own `jitter`, and the ink thins
+// out over `taper` px before that, as a pencil does when it eases off; past the plate the line starts again.
+const hash = n => { n = Math.imul(n ^ (n >>> 16), 0x45d9f3b); n = Math.imul(n ^ (n >>> 16), 0x45d9f3b); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+// `avoid.rects` may list several rectangles (the lines of a statement, say); the nearest one governs.
+function lift(avoid, x, y, key) {
+  if (avoid.rects) return Math.min(...avoid.rects.map(rect => lift({...avoid, rects: null, rect}, x, y, key)));
+  const {rect: [x0, y0, x1, y1], gap = 24, jitter = .3, taper = 30, seed = 1} = avoid;
+  const d = Math.hypot(Math.max(x0 - x, 0, x - x1), Math.max(y0 - y, 0, y - y1));
+  if (d >= gap * (1 + jitter) + taper) return 1;
+  const side = x < (x0 + x1) / 2 ? 0 : 1, stop = gap * (1 + jitter * (2 * hash(key * 2 + side + seed * 7919) - 1));
+  const t = Math.min(1, (d - stop) / taper);
+  return t <= 0 ? 0 : t * t * (3 - 2 * t);
+}
+
+// `pick: {river, family, band, mode}` singles out one band: mode 'skip' leaves it out, 'only' draws nothing else.
+function river(plate, r, W, H, avoid, ri = 0, pick = null) {
+  const {t0 = -.3, t1 = 3.3, steps = 900, curve, width = 540, swell = .2, phase = 0, families = [], extend = 0, waist = null} = r;
+  // With `extend`, the walk runs that many cycles longer at each end, and every line carries on past the ends of the
+  // curve along its own heading, so lines run off the canvas instead of stopping inside it. The frames within
+  // [t0, t1] are the same either way.
+  const dt = (t1 - t0) / (steps - 1), more = Math.round(extend / dt);
+  const F = walk(t0 + phase - more * dt, t1 + phase + more * dt, steps + 2 * more), inside = F.slice(more, F.length - more);
+  const xs = inside.map(f => f.pelvis[0]), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const C = curve.map(([x, y]) => [x * W, y * (r.frame ?? H)]); // curve heights are fractions of `frame` (default: the canvas)
+  const map = (u, v) => {
+    if (u >= 0 && u <= 1) return onCurve(u, v);
+    const e = u < 0 ? 0 : 1, s = u < 0 ? 1e-3 : -1e-3, p = onCurve(e, v), q = onCurve(e + s, v), k = (u - e) / s;
+    return [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k];
+  };
+  const onCurve = (u, v) => {
+    const c = bez(C, u), d = bezD(C, u), dd = bezDD(C, u), n = Math.hypot(d[0], d[1]), N = [d[1] / n, -d[0] / n];
+    // `waist: [u, amount, spread]` pinches the river around u, so its lines bunch there and fan out on either side.
+    const pinch = waist ? 1 - waist[1] * Math.exp(-(((u - waist[0]) / waist[2]) ** 2)) : 1;
+    // `span(u)`, when given, sets the river's full width at u directly, in px.
+    const wd = r.span ? r.span(u) : width * (W / 2400) * (1 + swell * Math.sin(Math.PI * 2 * u + .6)) * pinch;
+    let off = (v - .5) * wd;
+    const kappa = (d[0] * dd[1] - d[1] * dd[0]) / (n * n * n);
+    const R = 1 / Math.max(Math.abs(kappa), 1e-6), inward = (kappa > 0 && off < 0) || (kappa < 0 && off > 0);
+    if (inward) off = Math.sign(off) * .92 * R * Math.tanh(Math.abs(off) / (.92 * R));
+    return [c[0] + N[0] * off, c[1] + N[1] * off];
+  };
+  families.forEach((fam, fi) => {
+    let paths, vs;
+    if (fam.chain) {
+      paths = Array.from({length: fam.m}, (_, j) => F.map(f => { const p = chainPoints(f, CHAINS[fam.chain], fam.m)[j]; return [(p[0] - x0) / (x1 - x0), p[1] / 1.8]; }));
+      vs = paths.map(() => 0);
+    } else {
+      const ref = F.map(f => { const p = REF[fam.ref](f); return [(p[0] - x0) / (x1 - x0), p[1] / 1.8]; });
+      const mean = ref.slice(more, ref.length - more).reduce((s, p) => s + p[1], 0) / (ref.length - 2 * more);
+      vs = Array.from({length: fam.m}, (_, j) => fam.from + (fam.to - fam.from) * j / (fam.m - 1));
+      // `wobble: [amount, cycles]` lets each line drift a little on its own along the river, as a hand would.
+      const [wa, wc] = fam.wobble ?? [0, 0];
+      paths = vs.map((dist, j) => {
+        const damp = Math.exp(-Math.abs(dist) * (fam.damp ?? 2)), p1 = hash(j * 7 + fi * 131 + 1), p2 = hash(j * 13 + fi * 131 + 2);
+        const drift = u => wa * (Math.sin(2 * Math.PI * (u * wc + p1)) + .5 * Math.sin(2 * Math.PI * (u * wc * 2.3 + p2)));
+        return ref.map(([u, v]) => [u, mean + (v - mean) * damp + dist + drift(u)]);
+      });
+    }
+    if (fam.field) {
+      // Fill beyond the family's outermost line with a field of ink, closed through points off the canvas
+      // (fractions of it), so the lines bunching on the inside of a tight bend close into ink instead of leaving a gap.
+      const edge = paths[paths.length - 1].map(([u, v]) => map(u, v)), g = plate.ink(fam.field.ink);
+      g.fillStyle = `rgba(255,255,255,${fam.field.density})`;
+      g.beginPath(); edge.forEach((p, k) => g[k ? 'lineTo' : 'moveTo'](...p));
+      for (const [x, y] of fam.field.close) g.lineTo(x * W, y * H);
+      g.closePath(); g.fill();
+    }
+    for (let j = 0; j + 1 < paths.length; j++) {
+      let spec = pattern(fam.pattern, j, paths.length - 1, Math.abs(vs[j]));
+      if (!spec) continue;
+      if (pick) { const is = ri === (pick.river ?? 0) && fi === pick.family && j === pick.band; if (is === (pick.mode === 'skip')) continue; }
+      if (fam.screen || fam.tail) spec = {...spec, ...(fam.screen && {screen: fam.screen}), ...(fam.tail && {tail: fam.tail})};
+      const A = paths[j].map(([u, v]) => map(u, v)), B = paths[j + 1].map(([u, v]) => map(u, v));
+      const key = (ri * 64 + fi) * 4096 + j;
+      for (let k = 0; k + 1 < A.length; k++) {
+        let s = spec, m = 1;
+        const mx = (A[k][0] + A[k + 1][0]) / 2, my = (A[k][1] + A[k + 1][1]) / 2;
+        if (avoid) m = lift(avoid, mx, my, key);
+        // `ends: {inner, taper, jitter}`: each line starts and stops on its own, `inner` px in from the left and right
+        // edges give or take its jitter, thinning in over `taper` px, the way a pencil line starts.
+        if (r.ends && m > 0) {
+          const {inner, taper = 40, jitter = .3} = r.ends, side = mx < W / 2 ? 0 : 1, at = side ? W - mx : mx;
+          const start = inner * (1 + jitter * (2 * hash(key * 3 + side + 17) - 1)), t = Math.min(1, Math.max(0, (at - start) / taper));
+          m *= t * t * (3 - 2 * t);
+        }
+        if (m <= 0) continue;
+        if (m < 1) s = {...spec, density: (spec.density ?? 1) * m ** .7, solid: (spec.solid ?? .45) * (.35 + .65 * m)};
+        plate.band(spec.ink, [A[k], A[k + 1], B[k + 1], B[k]], s);
+      }
+    }
+  });
+}
+
+// Dice everything under a wafer into its whole dies: scribe lines and partial edge dies go to paper, and each die
+// keeps its own piece of the picture, a few nudged slightly off as if diced. A hairline marks the wafer's edge and flat.
+// Ordered dither: set single pixels to full ink where the 8x8 Bayer threshold falls under the tone.
+const BAYER = [0,32,8,40,2,34,10,42,48,16,56,24,50,18,58,26,12,44,4,36,14,46,6,38,60,28,52,20,62,30,54,22,
+  3,35,11,43,1,33,9,41,51,19,59,27,49,17,57,25,15,47,7,39,13,45,5,37,63,31,55,23,61,29,53,21].map(n => n / 64 + 1 / 128);
+function bayer(g, x0, y0, x1, y1, tone, cell = 2) {
+  g.fillStyle = '#fff';
+  for (let y = Math.ceil(y0); y < y1; y += cell) for (let x = Math.ceil(x0); x < x1; x += cell) {
+    const t = BAYER[((y / cell | 0) % 8) * 8 + (x / cell | 0) % 8];
+    if (tone(x, y) > t) g.fillRect(x, y, cell, cell);
+  }
+}
+function dice(plate, {cx, cy, r, columns = 18, aspect = 1.3, scribe = .1, nudge = 10, seed = 3, glow = {ink: 'p', base: .06, lit: .22}}, W, H) {
+  const X = cx * W, Y = cy * H, R = r * H, pw = 2 * R / columns, ph = pw * aspect, gap = Math.max(2, pw * scribe), chord = .94 * R;
+  let s = seed; const rand = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  for (const name of ['k', 'p']) {
+    const g = plate.ink(name), copy = document.createElement('canvas'); copy.width = W; copy.height = H;
+    copy.getContext('2d').drawImage(g.canvas, 0, 0);
+    g.save(); g.beginPath(); g.arc(X, Y, R + 2, 0, Math.PI * 2); g.clip(); g.clearRect(X - R - 4, Y - R - 4, 2 * R + 8, 2 * R + 8); g.restore();
+    s = seed;
+    for (let j = -Math.ceil(R / ph) - 1; j <= Math.ceil(R / ph); j++) for (let i = -Math.ceil(R / pw) - 1; i <= Math.ceil(R / pw); i++) {
+      const x0 = X + i * pw + gap / 2, y0 = Y + j * ph + gap / 2, x1 = X + (i + 1) * pw - gap / 2, y1 = Y + (j + 1) * ph - gap / 2;
+      const far = Math.hypot(Math.max(Math.abs(x0 - X), Math.abs(x1 - X)), Math.max(Math.abs(y0 - Y), Math.abs(y1 - Y)));
+      const dx = rand() > .86 ? (rand() - .5) * 2 * nudge : 0, dy = rand() > .93 ? (rand() - .5) * nudge : 0;
+      if (far > R - 4 || y1 > Y + chord - 4) continue;
+      g.drawImage(copy, x0 + dx, y0 + dy, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
+      if (name === glow.ink) bayer(g, x0, y0, x1, y1, (x, y) => {
+        // a soft glare across the wafer, so every whole die shows, lit like silicon
+        const nx = (x - X) / R, ny = (y - Y) / R, lit = Math.exp(-((((nx * .55 - ny * .85) + .15) / .5) ** 2));
+        return glow.base + glow.lit * lit;
+      });
+    }
+  }
+  // the wafer's edge, a hairline, with its flat
+  const g = plate.ink('k'); g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = Math.max(1.5, W / 1600);
+  const a = Math.acos(.94);
+  g.beginPath(); g.arc(X, Y, R, Math.PI / 2 + a, Math.PI / 2 - a + Math.PI * 2); g.closePath(); g.stroke();
+}
+
+// With `trim`, the canvas is cut to its ink: true or 'bottom' cuts just below the lowest ink, 'top' just above the
+// highest, 'both' on both sides, each leaving `pad` px of paper. A tall canvas then lets every line end on its own
+// instead of being cut by an edge; a warning is logged if ink still touches an edge that was meant to be trimmed.
+// With `line: {river, family, band}`, that one band is split off: the result is {base, line}, the drawing without it
+// and the band alone on a transparent ground, both cut to the same rows, so the line can be drawn in over the base.
+window.render = async (o = {}) => {
+  const {w = 2400, h = 1500, rivers = [], wafer = null, misregister = [3, 2], grain = 1, dither = grain, seed = 1, paper = [255, 255, 255], trim = false, pad = 0, avoid = null, line = null} = o;
+  const draw = (pick, ground) => {
+    const plate = new Plate(w, h);
+    rivers.forEach((r, ri) => river(plate, r, w, h, avoid, ri, pick));
+    if (wafer) dice(plate, wafer, w, h);
+    return plate.print({misregister, grain, dither, seed, paper: ground});
+  };
+  const outs = line ? [draw({...line, mode: 'skip'}, paper), draw({...line, mode: 'only'}, null)] : [draw(null, paper)];
+  if (trim) {
+    const data = outs.map(c => c.getContext('2d').getImageData(0, 0, w, h).data);
+    const inked = y => data.some((d, k) => {
+      const ground = k ? null : paper;
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (ground ? d[i] !== ground[0] || d[i + 1] !== ground[1] || d[i + 2] !== ground[2] : d[i + 3]) return true;
+      }
+      return false;
+    });
+    const top = trim === 'top' || trim === 'both', bottom = trim !== 'top';
+    let first = 0, last = h - 1;
+    if (bottom) while (last > 0 && !inked(last)) last--;
+    if (top) while (first < last && !inked(first)) first++;
+    if ((top && first === 0) || (bottom && last === h - 1)) console.warn('ink touches a trimmed edge of the canvas');
+    const y0 = top ? Math.max(0, first - pad) : 0, y1 = bottom ? Math.min(h - 1, last + pad) : h - 1;
+    outs.forEach((out, k) => {
+      const cut = document.createElement('canvas'); cut.width = w; cut.height = y1 - y0 + 1;
+      cut.getContext('2d').drawImage(out, 0, -y0);
+      outs[k] = cut;
+    });
+  }
+  const png = c => c.toDataURL('image/png').split(',')[1];
+  return line ? {base: png(outs[0]), line: png(outs[1])} : png(outs[0]);
+};
+</script>

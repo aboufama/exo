@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <style>
-  /* Share card, 1200 × 630 (rendered to dist/assets/og.jpg): Muybridge's walking plate at full height on its own
-     dark border, with the Lithe mark over it. At the centre the mark sits in the gap between the walkers of
-     frames 9 and 10, over grid and gutter, so no figure is covered. */
+  /* Share card, 1200 × 630 (rendered to dist/assets/og.jpg): the top of the page. The walk drawing fills the card (its
+     lines run off every edge anyway), with Muybridge's plate centred in the clearing the pencil left for it, as on
+     the page: half the drawing's width. */
   *{box-sizing:border-box}
-  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#1c1e1d}
-  body{position:relative;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;font-synthesis:none}
-  .plate{position:absolute;left:50%;top:0;height:630px;width:auto;display:block;transform:translateX(-50%)}
-  .brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;padding:.3em .5em;background:#fff;
-    font-size:46px;line-height:1;letter-spacing:-.02em;color:#ec7aa4}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#fff}
+  .cover{position:absolute;left:50%;top:0;height:630px;aspect-ratio:2800/1169;transform:translateX(-50%)}
+  .cover img{display:block;width:100%;height:100%}
+  .plate{position:absolute;left:50%;top:50%;width:50%;transform:translate(-50%,-50%)}
+  .plate img{display:block;width:100%;height:auto}
 </style>
 </head>
 <body>
-  <img class="plate" src="dist/assets/walking.webp" alt="">
-  <span class="brand">Lithe</span>
+  <div class="cover">
+    <img src="dist/assets/walk.webp" alt="">
+    <div class="plate"><img src="dist/assets/walking.webp" alt=""></div>
+  </div>
 </body>
 </html>

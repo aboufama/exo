@@ -10,8 +10,16 @@ const img = plate?.querySelector('img');
 const reel = plate?.querySelector('.reel');
 const trace = plate?.querySelector('.trace');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const STEP = 24; // px of scroll per frame
-const PINK = '#ec7aa4', WHITE = 'rgba(255,255,255,.78)', BLOCK = 'rgba(236,122,164,.22)';
+// The scroll per frame (24 px) and the trace's pink come from the page's tokens (--plate-step, --accent), so debug mode
+// can tune them; they are read again when it does ('lithe:tune', 'lithe:palette').
+let STEP = 24, PINK = '#ec7aa4';
+const WHITE = 'rgba(255,255,255,.78)';
+const tokens = () => {
+  const css = getComputedStyle(document.documentElement);
+  STEP = parseFloat(css.getPropertyValue('--plate-step')) || 24;
+  PINK = css.getPropertyValue('--accent').trim() || '#ec7aa4';
+};
+tokens();
 
 // Frame boxes in the 1200 × 713 source as [x0, y0, x1, y1], in printed order (1–6 top, 7–12 bottom).
 // Widths differ by a few pixels, so each frame is fitted to the box it lands in.
@@ -79,7 +87,7 @@ if (plate && img && reel && trace) {
 
     // Pink blocks on a coarse grid near the feet, seeded per frame so they travel with it.
     const grid = 14 * c;
-    g.fillStyle = BLOCK;
+    g.fillStyle = PINK; g.globalAlpha = .22;
     for (let i = 0; i < 12; i++) {
       const f = (i + k) % 12, rnd = seeded(f + 1);
       for (const p of [SWING[f], PLANT[f], SWING[f], HEADS[f]]) {
@@ -163,5 +171,6 @@ if (plate && img && reel && trace) {
     new ResizeObserver(size).observe(plate);
     addEventListener('scroll', () => { if (!frame) frame = requestAnimationFrame(() => update()); }, { passive: true });
     reduced.addEventListener?.('change', () => update(true));
+    for (const type of ['lithe:tune', 'lithe:palette']) addEventListener(type, () => { tokens(); update(true); });
   });
 }

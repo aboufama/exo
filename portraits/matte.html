@@ -1,0 +1,73 @@
+<!doctype html><meta charset=utf-8><body>
+<script>
+// A clean cut-out from a photo and a soft person matte. In the matte's soft edge (hair), each pixel's colour mixes the
+// person with the background behind: C = aF + (1 - a)B. B is estimated from the clear background just outside, and F
+// solved for, so no trace of the old background stays in the strands. Anything floating far from the solid figure (a
+// lamp caught by the matte) is dropped. The result is scaled to the output size with premultiplied alpha.
+const load = async src => { const i = new Image(); i.src = src; await i.decode(); return i; };
+const pixels = img => { const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext('2d', {willReadFrequently: true}); g.drawImage(img, 0, 0); return g.getImageData(0, 0, c.width, c.height); };
+// With `bound`, a subject mask: the soft matte may reach only a few pixels past its edge, which keeps the strands
+// but drops background the soft matte took for hair (dark seats seen between strands).
+window.render = async (photo, matte, out = 600, opts = {}) => {
+  const {reach = 12, fade = 7, solid = .6, bound = null, boundReach = 7, boundFade = 4} = opts;
+  const P = pixels(await load(photo)), M = pixels(await load(matte)), W = P.width, H = P.height, N = W * H, c = P.data;
+  const A = new Float32Array(N); for (let i = 0; i < N; i++) A[i] = M.data[i * 4] / 255;
+  // distance (chamfer) from a region, to drop what floats far from it
+  const distance = inside => {
+    const D = new Float32Array(N).fill(1e9);
+    for (let i = 0; i < N; i++) if (inside(i)) D[i] = 0;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x; if (x) D[i] = Math.min(D[i], D[i - 1] + 1); if (y) D[i] = Math.min(D[i], D[i - W] + 1); if (x && y) D[i] = Math.min(D[i], D[i - W - 1] + 1.414); if (x < W - 1 && y) D[i] = Math.min(D[i], D[i - W + 1] + 1.414); }
+    for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) { const i = y * W + x; if (x < W - 1) D[i] = Math.min(D[i], D[i + 1] + 1); if (y < H - 1) D[i] = Math.min(D[i], D[i + W] + 1); if (x < W - 1 && y < H - 1) D[i] = Math.min(D[i], D[i + W + 1] + 1.414); if (x && y < H - 1) D[i] = Math.min(D[i], D[i + W - 1] + 1.414); }
+    return D;
+  };
+  const near = (D, r, f) => i => { const t = Math.min(1, Math.max(0, (r - D[i]) / f)); return t * t * (3 - 2 * t); };
+  const keepSolid = near(distance(i => A[i] > solid), reach, fade);
+  let keepBound = () => 1;
+  if (bound) { const Bd = pixels(await load(bound)).data; keepBound = near(distance(i => Bd[i * 4] > 127), boundReach, boundFade); }
+  const alpha = new Float32Array(N);
+  for (let i = 0; i < N; i++) alpha[i] = A[i] * keepSolid(i) * keepBound(i);
+  // With `cutBelow: {y, until, feather, skin}`: where a dark band of background sits behind dark hair tips on the left of
+  // the face (rows y to until), and the two can't be told apart, fade the cut-out to nothing over the band, left of the
+  // jaw. The jaw is found walking in from the left edge, through dark background and hair, to the first run of bright skin.
+  if (opts.cutBelow) {
+    const {y: cy, until, feather: cf = 6, skin = 110} = opts.cutBelow, lum = i => .2126 * c[i * 4] + .7152 * c[i * 4 + 1] + .0722 * c[i * 4 + 2];
+    for (let y = Math.max(0, cy - cf); y <= Math.min(H - 1, until); y++) {
+      let xs = 0, run = 0;
+      for (let x = 0; x < W && run < 4; x++) { run = lum(y * W + x) > skin ? run + 1 : 0; xs = x - run + 1; }
+      const fadeY = Math.min(1, Math.max(0, (y - (cy - cf)) / cf)), keep = 1 - fadeY * fadeY * (3 - 2 * fadeY);
+      for (let x = 0; x < xs - 2; x++) alpha[y * W + x] *= keep;
+    }
+  }
+  // local means of the clear background (a < .03) and of the solid figure (a > .97), by a box filter over a radius
+  const mean = (keep, R) => {
+    const S = new Float32Array(N * 4); // r, g, b, weight
+    for (let i = 0; i < N; i++) if (keep(i)) { S[i * 4] = c[i * 4]; S[i * 4 + 1] = c[i * 4 + 1]; S[i * 4 + 2] = c[i * 4 + 2]; S[i * 4 + 3] = 1; }
+    const T = new Float32Array(N * 4), U = new Float32Array(N * 4);
+    for (let y = 0; y < H; y++) { const acc = [0, 0, 0, 0]; for (let x = -R; x < W + R; x++) { const xi = x + R, xo = x - R - 1;
+      if (xi < W) for (let k = 0; k < 4; k++) acc[k] += S[(y * W + xi) * 4 + k]; if (xo >= 0) for (let k = 0; k < 4; k++) acc[k] -= S[(y * W + xo) * 4 + k];
+      if (x >= 0 && x < W) for (let k = 0; k < 4; k++) T[(y * W + x) * 4 + k] = acc[k]; } }
+    for (let x = 0; x < W; x++) { const acc = [0, 0, 0, 0]; for (let y = -R; y < H + R; y++) { const yi = y + R, yo = y - R - 1;
+      if (yi < H) for (let k = 0; k < 4; k++) acc[k] += T[(yi * W + x) * 4 + k]; if (yo >= 0) for (let k = 0; k < 4; k++) acc[k] -= T[(yo * W + x) * 4 + k];
+      if (y >= 0 && y < H) for (let k = 0; k < 4; k++) U[(y * W + x) * 4 + k] = acc[k]; } }
+    return U;
+  };
+  const Bm = mean(i => A[i] < .03, 9), Bw = mean(i => A[i] < .03, 24), Fm = mean(i => A[i] > .97, 9), Fw = mean(i => A[i] > .97, 24);
+  const pick = (S1, S2, i, k) => S1[i * 4 + 3] > 2 ? S1[i * 4 + k] / S1[i * 4 + 3] : S2[i * 4 + 3] > 0 ? S2[i * 4 + k] / S2[i * 4 + 3] : null;
+  const img = new ImageData(W, H), o = img.data;
+  for (let i = 0; i < N; i++) {
+    const a = alpha[i];
+    let r = c[i * 4], g = c[i * 4 + 1], b = c[i * 4 + 2];
+    if (a < .985) {
+      const B = [0, 1, 2].map(k => pick(Bm, Bw, i, k)), F = [0, 1, 2].map(k => pick(Fm, Fw, i, k));
+      const solve = k => B[0] === null ? c[i * 4 + k] : (c[i * 4 + k] - (1 - Math.max(a, .25)) * B[k]) / Math.max(a, .25);
+      const w = Math.min(1, a / .25), mix = k => F[0] === null ? solve(k) : w * solve(k) + (1 - w) * F[k];
+      [r, g, b] = [mix(0), mix(1), mix(2)].map(v => Math.min(255, Math.max(0, v)));
+    }
+    o[i * 4] = r; o[i * 4 + 1] = g; o[i * 4 + 2] = b; o[i * 4 + 3] = Math.round(a * 255);
+  }
+  const src = document.createElement('canvas'); src.width = W; src.height = H; src.getContext('2d').putImageData(img, 0, 0);
+  const dst = document.createElement('canvas'); dst.width = dst.height = out;
+  const dg = dst.getContext('2d'); dg.imageSmoothingQuality = 'high'; dg.drawImage(src, 0, 0, out, out);
+  return dst.toDataURL('image/png').split(',')[1];
+};
+</script>

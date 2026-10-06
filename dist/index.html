@@ -5,105 +5,115 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <title>Lithe</title>
-  <meta name="description" content="Scaling the Human Experience: An Essay Against Brute Force.">
+  <meta name="description" content="Scaling the Human Experience: An Engine to Fight Brute Force.">
   <!-- Link previews (iMessage, Slack, X, etc.). The card is og-card.html, rendered at 1200 × 630. -->
   <link rel="canonical" href="https://lithe.site/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://lithe.site/">
   <meta property="og:site_name" content="Lithe">
   <meta property="og:title" content="Lithe">
-  <meta property="og:description" content="Scaling the Human Experience: An Essay Against Brute Force.">
-  <meta property="og:image" content="https://lithe.site/assets/og.jpg?v=3">
+  <meta property="og:description" content="Scaling the Human Experience: An Engine to Fight Brute Force.">
+  <meta property="og:image" content="https://lithe.site/assets/og.jpg?v=6">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Eadweard Muybridge’s twelve-frame photographic study of a man walking, 1887.">
+  <meta property="og:image:alt" content="Eadweard Muybridge’s twelve-frame study of a man walking, set in a drawing of black and pink lines traced from a walking body.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://lithe.site/assets/og.jpg?v=3">
+  <meta name="twitter:image" content="https://lithe.site/assets/og.jpg?v=6">
   <!-- The Lithe mark: a pink square with a white circle. -->
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="icon" href="./favicon.ico" sizes="48x48">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <!-- IBM Plex Sans (OFL), linked from Google Fonts while the type is being decided; to be self-hosted before launch. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
   <link rel="stylesheet" href="./style.css">
-  <link rel="preload" href="./assets/walking.webp" as="image">
-  <link rel="preload" href="./assets/standing.png" as="image">
-  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+  <link rel="preload" href="./assets/walk.webp" as="image" media="(min-aspect-ratio: 2/3)">
+  <link rel="preload" href="./assets/walk-tall.webp" as="image" media="(max-aspect-ratio: 2/3)">
+  <!-- The loader (braille.js) shows only with scripts and full motion, and is gone after eight seconds whatever happens. -->
+  <script>
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('loading');
+      setTimeout(() => document.documentElement.classList.remove('loading'), 8000);
+    }
+  </script>
 </head>
 <body>
+  <!-- While the page loads: "move" in braille, one letter after another in the same cell (braille.js). -->
+  <div class="loader" aria-hidden="true"><canvas></canvas></div>
   <main>
-    <header class="masthead" id="masthead">
-      <span class="brand">Lithe</span>
-    </header>
-    <div class="stage" id="stage">
-      <div id="model" role="img" aria-label="Black silhouette of the EXO exoskeleton. Its shoulder and arm mechanisms unfold as you scroll."></div>
-      <img id="poster" class="poster" src="./assets/standing.png" alt="" aria-hidden="true" width="1600" height="900">
-      <div id="identity" aria-hidden="true">
-        <h1 id="wordmark">Suit 1</h1>
-        <p>Full body strength enhancement and data collection – coming soon</p>
+    <!-- The walk plate (generated, see plates/) runs the full width at its own size, never cropped: its lines come in
+         off one edge and go out the other, and it ends on its lowest line. Phones get their own version. Muybridge's
+         walking plate sits over its centre, as supplied, in a clearing the pencil left for it, and walks as you scroll
+         (plate.js). -->
+    <div class="cover">
+      <picture>
+        <source media="(max-aspect-ratio: 2/3)" srcset="./assets/walk-tall.webp" width="1200" height="1231">
+        <img src="./assets/walk.webp" width="2800" height="1169" fetchpriority="high" alt="Bands of black and pink ink flowing in an S across the page: the paths traced by points along a walking body over three strides.">
+      </picture>
+      <div class="plate" id="plate">
+        <img src="./assets/walking.webp" width="1200" height="713" alt="A man walking, photographed in twelve sequential frames by Eadweard Muybridge.">
+        <canvas class="reel" aria-hidden="true"></canvas>
+        <canvas class="trace" aria-hidden="true"></canvas>
       </div>
-      <div class="loading-line" id="loading-line" aria-hidden="true"></div>
-      <p class="sr-only">After the manifesto, scroll, or use the arrow and Page Down keys, to move from standing to a fully extended pose. The name appears at the end.</p>
-      <div class="veil" id="veil" aria-hidden="true"></div>
-      <div class="grain" aria-hidden="true"></div>
-      <noscript><style>#identity{visibility:visible}.loading-line{display:none}</style></noscript>
     </div>
     <article class="manifesto" id="manifesto" aria-labelledby="essay-title">
-      <section class="hero">
-        <div class="frame">
-          <figure class="plate-figure">
-            <div class="plate" id="plate">
-              <img src="./assets/walking.webp" width="1200" height="713" alt="A man walking, photographed in twelve sequential frames by Eadweard Muybridge." fetchpriority="high">
-              <canvas class="reel" aria-hidden="true"></canvas>
-              <canvas class="trace" aria-hidden="true"></canvas>
-            </div>
-            <figcaption class="credit">Eadweard Muybridge, <cite>Animal Locomotion</cite>, 1887</figcaption>
-          </figure>
-        </div>
-      </section>
-
       <header class="title-page">
-        <h1 class="title" id="essay-title">Scaling the Human Experience: <span>An Essay Against Brute Force</span></h1>
+        <h1 class="title" id="essay-title">Scaling the Human Experience: <span>An Engine to Fight Brute Force</span></h1>
       </header>
 
       <div class="sheet">
         <div class="copy">
           <div class="part">
-          <h2 class="kicker">Problem</h2>
-          <p>LLMs learned to talk by reading everything we’ve ever written, but robots can’t do the same because we never recorded how we move.</p>
-          <p>Solving embodiment is fundamentally the same as solving language; we just aren’t as lucky with the data we have. There’s no corpus waiting to be scraped, and the physical world is notoriously unforgiving, so every humanoid company has to collect or manufacture its own data.</p>
-          <p>Even the largest players fall back on training in simulation, synthetic data or paid data-collection operations. <mark class="hl">None of these scale.</mark></p>
-          <div class="claim">
-          <p class="lede">A high-quality, embodied dataset the size of the internet does not exist, and no amount of money spent brute forcing data will create one.</p>
-          <figure class="gap" id="gap">
-            <div class="gap-plot">
-              <canvas aria-hidden="true"></canvas>
-              <div class="gap-label" style="--x:0">Internet text<span>1.6B hours</span></div>
-              <div class="gap-label" style="--x:.51">Human task video<span>300M hours</span></div>
-              <div class="gap-label up">Public humanoid data<span>5,000 hours</span></div>
-            </div>
-            <figcaption class="sr-only">Circle areas show hours of human-equivalent experience. Internet text, about 30 trillion tokens read at 238 words a minute; human task video, about a tenth of YouTube, if it were egocentric; public humanoid robot data, about 5,000 hours, a dot too small to see.</figcaption>
-          </figure>
-          </div>
-          <p>The physical world needs its own internet—an enormous, passive stream of human physical data.</p>
-          <p>The only way to build that is to <mark class="hl">create an embodied product people choose to use en masse.</mark></p>
-          </div>
-          <div class="part turn">
-          <h3 class="head"><span class="kicker">Solution<span class="sr-only">:</span></span> Powered Exo</h3>
-          <p>Why the emphasis on <em>powered</em>? Power is what makes it useful to the wearer.</p>
-          <p>Wireless motion capture (mocap) suits already exist and provide the data we want, but they don’t give anything to the user in return. Paying people to wear uncomfortable costumes for hours and do repetitive tasks can’t scale.</p>
+          <p>LLMs learned to talk by reading everything we’ve ever written, but robots can’t do the same because we never recorded how we move. Solving embodiment is fundamentally the same as solving language; we just aren’t as lucky with the data we have.</p>
+          <p>There’s no corpus waiting to be scraped, and the physical world is notoriously unforgiving, so every humanoid company has to collect or manufacture its own data. Even the largest players fall back on training in simulation, synthetic data or paid data-collection operations. None of these scale.</p>
+          <p>A high-quality, embodied dataset the size of the internet does not exist, and no amount of money spent brute forcing data will create one.</p>
+          <p>The physical world needs its own internet—an enormous, passive stream of human physical data. The only way to build that is to create an embodied product people choose to use en masse.</p>
+          <h2 class="lead"><img class="nexus" src="./assets/nexus.webp" width="4000" height="1760" alt="" loading="lazy" decoding="async">A powered exoskeleton is the data engine to solve the embodiment problem.</h2>
+          <p>Why the emphasis on <em>powered</em>? Power is what makes it useful to the wearer. Wireless motion capture (mocap) suits already exist and provide the data we want, but they don’t give anything to the user in return. Paying people to wear uncomfortable costumes for hours and do repetitive tasks can’t scale.</p>
           <p>Nobody wrote the internet to train LLMs. They wrote it because it was useful to them, and the data was a side effect.</p>
           <p>A powered exo should work the same way. It has to help the person wearing it, and never get in their way. Today’s exosuits are too bulky and awkward for daily use, and if a device is even mildly annoying, no one will wear it.</p>
-          <p id="last" data-reveal=".3">Suit&nbsp;1 is built to be something people want to wear, not something they put up with. They use it because it helps them move better, and along the way, the dataset builds itself.</p>
+          <p>Suit&nbsp;1 is built to be something people want to wear, not something they put up with. They use it because it helps them move better, and along the way, the dataset builds itself.</p>
           </div>
         </div>
       </div>
     </article>
-
-    <section id="journey" aria-label="EXO — scroll to unfold the exoskeleton"></section>
   </main>
+  <!-- Contact tabs at the foot of the page, over a sliver of the drawing whose top line draws in as you scroll down to
+       it (lines.js). The founders sit in the dip of that drawing, each photo under its name, linking to their LinkedIn.
+       Waitlist, X and Email have no link yet: each says "Coming soon" when clicked (soon.js). -->
+  <footer class="tabs">
+    <img class="stroke" src="./assets/foot-line.webp" width="2800" height="385" alt="" aria-hidden="true">
+    <section class="founders" id="founders" aria-labelledby="founders-label">
+      <h2 class="founders-label" id="founders-label">Founders:</h2>
+      <a class="founder" href="https://www.linkedin.com/in/andre-boufama-7b2aa8240" target="_blank" rel="noopener">
+        <span class="name">Andre Boufama</span>
+        <span class="blurb">Obsessed with design, physical and digital.</span>
+        <span class="portrait"><canvas aria-hidden="true"></canvas><img src="./assets/andre.webp" width="600" height="600" alt="" loading="lazy"></span>
+      </a>
+      <a class="founder" href="https://www.linkedin.com/in/nigeltatem/" target="_blank" rel="noopener">
+        <span class="name">Nigel Tatem</span>
+        <span class="blurb">Ex Jane-Street and influencer.</span>
+        <span class="portrait"><canvas aria-hidden="true"></canvas><img src="./assets/nigel.webp" width="600" height="600" alt="" loading="lazy"></span>
+      </a>
+    </section>
+    <span class="tab">Lithe © 2026</span>
+    <nav class="tab-group pages" aria-label="On this page">
+      <a class="tab" href="#essay-title">Essay</a>
+      <a class="tab" href="#founders">Founders</a>
+    </nav>
+    <nav class="tab-group" aria-label="Contact">
+      <a class="tab" href="#" data-soon>Waitlist</a>
+      <a class="tab" href="#" data-soon>X</a>
+      <a class="tab" href="#" data-soon>Email</a>
+    </nav>
+  </footer>
 
-  <script type="module" src="./manifesto.js"></script>
+  <script type="module" src="./braille.js"></script>
   <script type="module" src="./plate.js"></script>
-  <script type="module" src="./gap.js"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./lines.js"></script>
+  <script type="module" src="./founders.js"></script>
+  <script type="module" src="./soon.js"></script>
+  <script type="module" src="./debug.js"></script>
 </body>
 </html>
