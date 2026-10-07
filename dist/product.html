@@ -14,18 +14,19 @@
   <link rel="stylesheet" href="./style.css">
   <!-- The product: an empty page, only the exoskeleton's silhouette at rest, arms hanging relaxed (the real v3 CAD,
        seen from behind, as rendered; assets/exo.webp is that render cropped to its edges), with one small line under
-       it. Under the silhouette, the site's shadow: a fine dither (one pixel in four), offset down and to the right, cut
-       to its own shape. The tabs are the home page's, over only the top line of its foot drawing, faint. -->
+       it, and round it a field of pink braille that it gives off (aura.js). No drawings: those stay on the manifesto.
+       The tabs are the home page's. -->
   <style>
     body{display:flex;flex-direction:column;min-height:100vh;min-height:100svh}
-    .product{flex:1;display:grid;place-items:center;padding:var(--gutter)}
+    .product{position:relative;flex:1;display:grid;place-items:center;padding:var(--gutter)}
     .product figure{margin:0}
     .exo{position:relative;isolation:isolate;width:min(64vw,calc(50svh * 1848 / 1358),1000px);aspect-ratio:1848/1358}
     @media(max-width:600px){.exo{width:min(88vw,calc(50svh * 1848 / 1358))}}
     .exo img{display:block;width:100%;height:100%}
-    .exo::before{content:"";position:absolute;inset:0;z-index:-1;translate:var(--shadow-off,5px) var(--shadow-off,5px);background:repeating-conic-gradient(var(--ink) 0 25%,transparent 0 100%) 0 0/2px 2px;-webkit-mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat;mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat}
     .product figcaption{margin-top:clamp(20px,3svh,36px);font-family:var(--f-label);font-size:var(--note);font-weight:var(--note-w,400);line-height:1.35;letter-spacing:var(--label-t,.01em);color:var(--ink-soft);text-align:center}
-    .product~.tabs{--foot-bg:none;--foot-o:.45}
+    .aura{position:absolute;top:0;left:0;display:block;pointer-events:none;user-select:none}
+    .product~.tabs{padding-top:0}
+    .product~.tabs::before{display:none}
   </style>
 </head>
 <body>
@@ -39,11 +40,10 @@
   </main>
 
   <footer class="tabs">
-    <img class="stroke" src="./assets/foot-line.webp" width="2800" height="385" alt="" aria-hidden="true">
     <span class="tab">Lithe 2026</span>
     <nav class="tab-group pages" aria-label="Pages">
       <a class="tab" href="./product.html" aria-current="page">Product</a>
-      <a class="tab" href="./#essay-title">Manifesto</a>
+      <a class="tab" href="./">Manifesto</a>
     </nav>
     <nav class="tab-group" aria-label="Contact">
       <a class="tab" href="#" data-soon>Waitlist</a>
@@ -52,6 +52,7 @@
     </nav>
   </footer>
 
+  <script type="module" src="./aura.js"></script>
   <script type="module" src="./soon.js"></script>
 </body>
 </html>
