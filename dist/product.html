@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Lithe — Product</title>
+  <meta name="description" content="The Lithe exoskeleton.">
+  <link rel="canonical" href="https://lithe.site/product.html">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./favicon.ico" sizes="48x48">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="stylesheet" href="./style.css">
+  <!-- The product: an empty page, only the exoskeleton's silhouette at rest, arms hanging relaxed (the real v3 CAD,
+       seen from behind, as rendered; assets/exo.webp is that render cropped to its edges). Under it, the site's shadow:
+       a fine dither (one pixel in four), offset down and to the right, cut to the silhouette's own shape. -->
+  <style>
+    body{margin:0}
+    .product{display:grid;place-items:center;min-height:100vh;min-height:100svh;padding:var(--gutter);box-sizing:border-box}
+    .exo{position:relative;isolation:isolate;width:min(72vw,calc(66svh * 1848 / 1358),1100px);aspect-ratio:1848/1358}
+    .exo img{display:block;width:100%;height:100%}
+    .exo::before{content:"";position:absolute;inset:0;z-index:-1;translate:var(--shadow-off,5px) var(--shadow-off,5px);background:repeating-conic-gradient(var(--ink) 0 25%,transparent 0 100%) 0 0/2px 2px;-webkit-mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat;mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat}
+  </style>
+</head>
+<body>
+  <main class="product">
+    <div class="exo">
+      <img src="./assets/exo.webp" width="1848" height="1358" alt="The Lithe exoskeleton at rest, seen from behind: a spine and shoulder frame, its arms hanging relaxed.">
+    </div>
+  </main>
+</body>
+</html>
