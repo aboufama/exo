@@ -5,28 +5,52 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <title>Lithe — Product</title>
-  <meta name="description" content="The Lithe exoskeleton.">
+  <meta name="description" content="Human augmentation Suit 1: coming soon.">
   <link rel="canonical" href="https://lithe.site/product.html">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="icon" href="./favicon.ico" sizes="48x48">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="preload" href="./fonts/plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
   <!-- The product: an empty page, only the exoskeleton's silhouette at rest, arms hanging relaxed (the real v3 CAD,
-       seen from behind, as rendered; assets/exo.webp is that render cropped to its edges). Under it, the site's shadow:
-       a fine dither (one pixel in four), offset down and to the right, cut to the silhouette's own shape. -->
+       seen from behind, as rendered; assets/exo.webp is that render cropped to its edges), with one small line under
+       it. Under the silhouette, the site's shadow: a fine dither (one pixel in four), offset down and to the right, cut
+       to its own shape. The tabs are the home page's, over only the top line of its foot drawing, faint. -->
   <style>
-    body{margin:0}
-    .product{display:grid;place-items:center;min-height:100vh;min-height:100svh;padding:var(--gutter);box-sizing:border-box}
-    .exo{position:relative;isolation:isolate;width:min(72vw,calc(66svh * 1848 / 1358),1100px);aspect-ratio:1848/1358}
+    body{display:flex;flex-direction:column;min-height:100vh;min-height:100svh}
+    .product{flex:1;display:grid;place-items:center;padding:var(--gutter)}
+    .product figure{margin:0}
+    .exo{position:relative;isolation:isolate;width:min(64vw,calc(50svh * 1848 / 1358),1000px);aspect-ratio:1848/1358}
+    @media(max-width:600px){.exo{width:min(88vw,calc(50svh * 1848 / 1358))}}
     .exo img{display:block;width:100%;height:100%}
     .exo::before{content:"";position:absolute;inset:0;z-index:-1;translate:var(--shadow-off,5px) var(--shadow-off,5px);background:repeating-conic-gradient(var(--ink) 0 25%,transparent 0 100%) 0 0/2px 2px;-webkit-mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat;mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat}
+    .product figcaption{margin-top:clamp(20px,3svh,36px);font-family:var(--f-label);font-size:var(--note);font-weight:var(--note-w,400);line-height:1.35;letter-spacing:var(--label-t,.01em);color:var(--ink-soft);text-align:center}
+    .product~.tabs{--foot-bg:none;--foot-o:.45}
   </style>
 </head>
 <body>
   <main class="product">
-    <div class="exo">
-      <img src="./assets/exo.webp" width="1848" height="1358" alt="The Lithe exoskeleton at rest, seen from behind: a spine and shoulder frame, its arms hanging relaxed.">
-    </div>
+    <figure>
+      <div class="exo">
+        <img src="./assets/exo.webp" width="1848" height="1358" alt="The Lithe exoskeleton at rest, seen from behind: a spine and shoulder frame, its arms hanging relaxed.">
+      </div>
+      <figcaption>Human augmentation Suit 1: Coming soon.</figcaption>
+    </figure>
   </main>
+
+  <footer class="tabs">
+    <img class="stroke" src="./assets/foot-line.webp" width="2800" height="385" alt="" aria-hidden="true">
+    <nav class="tab-group pages" aria-label="Pages">
+      <a class="tab" href="./product.html" aria-current="page">Product</a>
+      <a class="tab" href="./#essay-title">Manifesto</a>
+    </nav>
+    <nav class="tab-group" aria-label="Contact">
+      <a class="tab" href="#" data-soon>Waitlist</a>
+      <a class="tab" href="#" data-soon>X</a>
+      <a class="tab" href="#" data-soon>Email</a>
+    </nav>
+  </footer>
+
+  <script type="module" src="./soon.js"></script>
 </body>
 </html>
