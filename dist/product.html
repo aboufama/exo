@@ -14,8 +14,10 @@
   <link rel="stylesheet" href="./style.css">
   <!-- The product: an empty page, only the exoskeleton's silhouette at rest, arms hanging relaxed (the real v3 CAD,
        seen from behind, as rendered; assets/exo.webp is that render cropped to its edges), with one small line under
-       it, and round it a field of pink braille that it gives off (aura.js). No drawings: those stay on the manifesto.
-       The tabs are the home page's. -->
+       it. Under the silhouette, the site's shadow: a fine dither (one pixel in four), offset down and to the right, cut
+       to its shape, printed like a two-ink riso: a pink layer a little out of register under the black. "Coming soon"
+       is marked as a reader would select it, in the selection pink. No drawings: those stay on the manifesto. The
+       tabs are the home page's. -->
   <style>
     body{display:flex;flex-direction:column;min-height:100vh;min-height:100svh}
     .product{position:relative;flex:1;display:grid;place-items:center;padding:var(--gutter)}
@@ -23,8 +25,11 @@
     .exo{position:relative;isolation:isolate;width:min(64vw,calc(50svh * 1848 / 1358),1000px);aspect-ratio:1848/1358}
     @media(max-width:600px){.exo{width:min(88vw,calc(50svh * 1848 / 1358))}}
     .exo img{display:block;width:100%;height:100%}
+    .exo::before,.exo::after{content:"";position:absolute;inset:0;background:repeating-conic-gradient(var(--ink) 0 25%,transparent 0 100%) 0 0/2px 2px;-webkit-mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat;mask:url(./assets/exo.webp) 0 0/100% 100% no-repeat}
+    .exo::before{z-index:-1;translate:var(--shadow-off,5px) var(--shadow-off,5px)}
+    .exo::after{z-index:-2;translate:calc(var(--shadow-off,5px) + 2px) calc(var(--shadow-off,5px) + 2px);background-image:repeating-conic-gradient(var(--accent) 0 25%,transparent 0 100%);background-position:1px 1px}
+    .product mark{padding:1px 2px;margin:0 -2px;background:var(--blush);color:var(--ink)}
     .product figcaption{margin-top:clamp(20px,3svh,36px);font-family:var(--f-label);font-size:var(--note);font-weight:var(--note-w,400);line-height:1.35;letter-spacing:var(--label-t,.01em);color:var(--ink-soft);text-align:center}
-    .aura{position:absolute;top:0;left:0;display:block;pointer-events:none;user-select:none}
     .product~.tabs{padding-top:0}
     .product~.tabs::before{display:none}
   </style>
@@ -35,7 +40,7 @@
       <div class="exo">
         <img src="./assets/exo.webp" width="1848" height="1358" alt="The Lithe exoskeleton at rest, seen from behind: a spine and shoulder frame, its arms hanging relaxed.">
       </div>
-      <figcaption>Human augmentation Suit 1: Coming soon.</figcaption>
+      <figcaption>Human augmentation Suit 1: <mark>Coming soon.</mark></figcaption>
     </figure>
   </main>
 
@@ -52,7 +57,6 @@
     </nav>
   </footer>
 
-  <script type="module" src="./aura.js"></script>
   <script type="module" src="./soon.js"></script>
 </body>
 </html>
